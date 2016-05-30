@@ -1,6 +1,7 @@
 # AppReputation
 
 [![Build Status](https://travis-ci.org/thyrlian/AppReputation.svg?branch=master)](https://travis-ci.org/thyrlian/AppReputation)
+[![Coverage Status](https://coveralls.io/repos/github/thyrlian/AppReputation/badge.svg?branch=master)](https://coveralls.io/github/thyrlian/AppReputation?branch=master)
 
 Ruby gem for retrieving application's **ratings** and **reviews** from the most popular mobile platforms ( [Android](https://play.google.com/store/apps) & [iOS](https://itunes.apple.com/us/genre/ios/id36?mt=8) ).
 
