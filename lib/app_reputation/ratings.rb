@@ -8,15 +8,15 @@ module AppReputation
     end
     
     def average
-      sum = @statistics.each_with_index.inject(0) do |sum, (item, index)|
+      gross = @statistics.each_with_index.inject(0) do |sum, (item, index)|
         # count is item
         # stars is index + 1
-        sum += item * (index + 1)
+        sum + item * (index + 1)
       end
-      if (sum == 0)
+      if (gross == 0)
         return 0
       else
-        return sum * 1.0 / @statistics.inject(:+)
+        return gross * 1.0 / @statistics.inject(:+)
       end
     end
   end
