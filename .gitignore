@@ -1,3 +1,4 @@
+### Ruby ###
 /.bundle/
 /.yardoc
 /Gemfile.lock
@@ -7,3 +8,6 @@
 /pkg/
 /spec/reports/
 /tmp/
+
+### OSX ###
+*.DS_Store
