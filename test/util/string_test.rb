@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 
 class StringTest < Minitest::Test
   def test_set_param_positive
