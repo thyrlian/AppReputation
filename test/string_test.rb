@@ -4,6 +4,7 @@ class StringTest < Minitest::Test
   def test_set_param_positive
     url = 'https://www.example.com/$[name]/intro'
     assert_equal('https://www.example.com/acme/intro', url.set_param(:name, 'acme'))
+    assert_equal('https://www.example.com/$[name]/intro', url)
   end
   
   def test_set_param_negative
