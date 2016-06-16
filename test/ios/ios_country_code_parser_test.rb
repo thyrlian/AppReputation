@@ -9,7 +9,7 @@ class IosCountryCodeParserTest < Minitest::Test
     @file.expect(:readlines, ["https://developer.apple.com/", "AB\n", "CD\n", "XX\n"])
     File.stub(:join, @file) do
       File.stub(:open, '', @file) do
-        assert_equal(%w(AB CD XX), IosCountryCodeParser.parse(@file))
+        assert_equal(%w(AB CD XX), AppReputation::IosCountryCodeParser.parse(@file))
       end
     end
   end
