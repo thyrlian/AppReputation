@@ -1,9 +1,14 @@
 require 'test_helper'
+require_relative '../util/countries_test_helper'
 
 class IosRatingsBuilderTest < Minitest::Test
+  include CountriesTestHelper
+  
   def setup
     @header = AppReputation::IosRatingsBuilder.class_variable_get(:@@header_user_agent)
     @resource = MiniTest::Mock.new
+    countries = get_countries_from_stub_file(%w(US CN GB DE ES))
+    AppReputation::IosRatingsBuilder.class_variable_set(:@@supported_countries, countries)
     @ios_ratings_builder = AppReputation::IosRatingsBuilder.new
   end
   

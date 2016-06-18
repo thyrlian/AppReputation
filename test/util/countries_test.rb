@@ -1,6 +1,9 @@
 require_relative '../test_helper'
+require_relative 'countries_test_helper'
 
 class CountriesTest < Minitest::Test
+  include CountriesTestHelper
+  
   def test_parse
     countries = get_countries_from_stub_file(["https://developer.apple.com/", "AB\n", "CD\n", "XX\n", "AB\n"])
     assert_equal(%w(AB CD XX), countries.list)
@@ -48,17 +51,5 @@ class CountriesTest < Minitest::Test
     assert_empty(countries.list_unsupported_countries('AB', 'YZ'))
     assert_equal(['ZZ'], countries.list_unsupported_countries('ZZ', 'AB', 'ZZ'))
     assert_equal(['OO', 'PQ'], countries.list_unsupported_countries('oo', 'AB', 'PQ'))
-  end
-  
-  def get_countries_from_stub_file(content_lines)
-    countries = []
-    file = MiniTest::Mock.new
-    file.expect(:readlines, content_lines)
-    File.stub(:join, file) do
-      File.stub(:open, '', file) do
-        countries = AppReputation::Countries.parse(file)
-      end
-    end
-    countries
   end
 end
