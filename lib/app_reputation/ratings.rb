@@ -19,5 +19,9 @@ module AppReputation
         return gross * 1.0 / @statistics.inject(:+)
       end
     end
+    
+    def ==(another_ratings)
+      @statistics = another_ratings.statistics
+    end
   end
 end
