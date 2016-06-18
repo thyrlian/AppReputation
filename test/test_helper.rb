@@ -8,3 +8,4 @@ Coveralls.wear!
 
 require 'app_reputation'
 require 'minitest/autorun'
+require 'mocha/mini_test'
