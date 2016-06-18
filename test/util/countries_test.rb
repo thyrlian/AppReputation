@@ -25,27 +25,27 @@ class CountriesTest < Minitest::Test
   def test_include_negative
     countries = get_countries_from_stub_file(['AB', 'CD', 'EF', 'JL', 'XX', 'YZ'])
     # test one element
-    assert(!countries.include?('PQ'))
+    refute(countries.include?('PQ'))
     # test one abnormal element
-    assert(!countries.include?('ABC'))
+    refute(countries.include?('ABC'))
     # test one positive and one negative
-    assert(!countries.include?('AB', 'PQ'))
+    refute(countries.include?('AB', 'PQ'))
     # test more elements
-    assert(!countries.include?('OO', 'PQ'))
+    refute(countries.include?('OO', 'PQ'))
     # test different order
-    assert(!countries.include?('YZ', 'AB', 'PQ'))
+    refute(countries.include?('YZ', 'AB', 'PQ'))
     # test duplicates
-    assert(!countries.include?('AB', 'PQ', 'AB', 'PQ'))
+    refute(countries.include?('AB', 'PQ', 'AB', 'PQ'))
     # test lowercase and uppercase mixup
-    assert(!countries.include?('AB', 'pq'))
+    refute(countries.include?('AB', 'pq'))
     # test overloaded elements
-    assert(!countries.include?('AB', 'CD', 'EF', 'JL', 'XX', 'YZ', 'BA'))
+    refute(countries.include?('AB', 'CD', 'EF', 'JL', 'XX', 'YZ', 'BA'))
   end
   
   def test_list_unsupported_countries
     countries = get_countries_from_stub_file(['AB', 'CD', 'EF', 'JL', 'XX', 'YZ'])
-    assert_equal([], countries.list_unsupported_countries())
-    assert_equal([], countries.list_unsupported_countries('AB', 'YZ'))
+    assert_empty(countries.list_unsupported_countries())
+    assert_empty(countries.list_unsupported_countries('AB', 'YZ'))
     assert_equal(['ZZ'], countries.list_unsupported_countries('ZZ', 'AB', 'ZZ'))
     assert_equal(['OO', 'PQ'], countries.list_unsupported_countries('oo', 'AB', 'PQ'))
   end
