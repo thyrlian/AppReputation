@@ -24,4 +24,10 @@ class IosRatingsBuilderTest < Minitest::Test
       assert_nil(ratings)
     end
   end
+  
+  def test_build_unsupported_countries
+    assert_raises ArgumentError do
+      @ios_ratings_builder.build(123456789, 'US', 'XX', 'OO')
+    end
+  end
 end
