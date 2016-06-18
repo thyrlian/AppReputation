@@ -20,8 +20,12 @@ module AppReputation
     end
     
     def include?(*countries)
+      list_unsupported_countries(*countries).empty?
+    end
+    
+    def list_unsupported_countries(*countries)
       countries = countries.map { |country| country.upcase }.uniq
-      (countries - @list).empty?
+      countries - @list
     end
     
     private_class_method :new

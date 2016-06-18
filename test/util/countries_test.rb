@@ -42,6 +42,14 @@ class CountriesTest < Minitest::Test
     assert(!countries.include?('AB', 'CD', 'EF', 'JL', 'XX', 'YZ', 'BA'))
   end
   
+  def test_list_unsupported_countries
+    countries = get_countries_from_stub_file(['AB', 'CD', 'EF', 'JL', 'XX', 'YZ'])
+    assert_equal([], countries.list_unsupported_countries())
+    assert_equal([], countries.list_unsupported_countries('AB', 'YZ'))
+    assert_equal(['ZZ'], countries.list_unsupported_countries('ZZ', 'AB', 'ZZ'))
+    assert_equal(['OO', 'PQ'], countries.list_unsupported_countries('oo', 'AB', 'PQ'))
+  end
+  
   def get_countries_from_stub_file(content_lines)
     countries = []
     file = MiniTest::Mock.new
