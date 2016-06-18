@@ -30,4 +30,9 @@ class IosRatingsBuilderTest < Minitest::Test
       @ios_ratings_builder.build(123456789, 'US', 'XX', 'OO')
     end
   end
+  
+  def test_build_with_one_country
+    @ios_ratings_builder.expects(:get_ratings).with(123456789, 'CN').once
+    @ios_ratings_builder.build(123456789, 'CN')
+  end
 end
