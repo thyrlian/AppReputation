@@ -21,7 +21,7 @@ module AppReputation
     end
     
     def ==(another_ratings)
-      @statistics = another_ratings.statistics
+      @statistics == another_ratings.statistics
     end
   end
 end
