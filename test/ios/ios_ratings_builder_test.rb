@@ -53,10 +53,9 @@ class IosRatingsBuilderTest < Minitest::Test
   end
   
   def test_get_ratings_fail_all_retries
-    def @resource.get(header)
-      raise RestClient::RequestTimeout
-    end
-    RestClient::Resource.stub(:new, @resource) do
+    resource = mock()
+    resource.stubs(:get).with(@header).raises(RestClient::RequestTimeout)
+    RestClient::Resource.stub(:new, resource) do
       assert_raises RestClient::RequestTimeout do
         @ios_ratings_builder.send(:get_ratings, 123456789, 'us')
       end
