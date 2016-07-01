@@ -7,6 +7,8 @@ module AppReputation
       @threads = Array.new(@thread_count).extend(MonitorMixin)
       @work_queue = SizedQueue.new(@thread_count)
       @threads_available = @threads.new_cond
+      @producer_thread = nil
+      @consumer_thread = nil
       @sysexit = false
       @results = []
       @results_mutex = Mutex.new
