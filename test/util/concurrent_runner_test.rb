@@ -73,14 +73,14 @@ class ConcurrentRunnerTest < Minitest::Test
   def test_run
     samples = (1..30000).to_a
     jobs = samples.shuffle.inject([]) do |memo, n|
-      memo.push(MiniTest::Mock.new.expect(:call, n))
+      memo.push(MiniTest::Mock.new.expect(:call, n + 10))
     end
     @concurrent_runner.set_producer_thread(jobs)
     @concurrent_runner.set_consumer_thread
     @concurrent_runner.run
     
     assert(@concurrent_runner.instance_variable_get(:@sysexit))
-    assert_equal(samples, @concurrent_runner.results.sort)
+    assert_equal(samples.map(&10.method(:+)), @concurrent_runner.results.sort)
     jobs.each { |job| job.verify }
   end
 end
