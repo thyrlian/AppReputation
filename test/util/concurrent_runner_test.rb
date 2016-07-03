@@ -71,22 +71,16 @@ class ConcurrentRunnerTest < Minitest::Test
   end
   
   def test_run
-    jobs = []
-    mock_proc_a = MiniTest::Mock.new.expect(:call, 2)
-    mock_proc_b = MiniTest::Mock.new.expect(:call, 4)
-    mock_proc_c = MiniTest::Mock.new.expect(:call, 6)
-    mock_proc_d = MiniTest::Mock.new.expect(:call, 1)
-    mock_proc_e = MiniTest::Mock.new.expect(:call, 3)
-    mock_proc_f = MiniTest::Mock.new.expect(:call, 5)
-    mock_proc_g = MiniTest::Mock.new.expect(:call, 0)
-    jobs.push(mock_proc_a, mock_proc_b, mock_proc_c, mock_proc_d, mock_proc_e, mock_proc_f, mock_proc_g)
-    
+    samples = (1..30000).to_a
+    jobs = samples.shuffle.inject([]) do |memo, n|
+      memo.push(MiniTest::Mock.new.expect(:call, n))
+    end
     @concurrent_runner.set_producer_thread(jobs)
     @concurrent_runner.set_consumer_thread
     @concurrent_runner.run
     
     assert(@concurrent_runner.instance_variable_get(:@sysexit))
-    assert_equal([0, 1, 2, 3, 4, 5, 6], @concurrent_runner.results.sort)
+    assert_equal(samples, @concurrent_runner.results.sort)
     jobs.each { |job| job.verify }
   end
 end
