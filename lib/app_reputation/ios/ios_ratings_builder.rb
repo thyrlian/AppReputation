@@ -71,7 +71,7 @@ module AppReputation
       concurrent_runner.set_producer_thread(jobs)
       concurrent_runner.run
       concurrent_runner.results.inject(Ratings.new(0, 0, 0, 0, 0)) do |sum, ratings|
-        sum += ratings
+        sum + ratings
       end
     end
     
