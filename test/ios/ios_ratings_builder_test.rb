@@ -29,7 +29,7 @@ class IosRatingsBuilderTest < Minitest::Test
     @resource.expect(:get, response, [@header])
     RestClient::Resource.stub(:new, @resource) do
       ratings = @ios_ratings_builder.send(:get_ratings, 123456789, 'us')
-      assert_equal(AppReputation::Ratings.new(1,2,3,5,8), ratings)
+      assert_equal(AppReputation::Ratings.new(1, 2, 3, 5, 8), ratings)
     end
   end
   
@@ -48,7 +48,7 @@ class IosRatingsBuilderTest < Minitest::Test
     resource.stubs(:get).with(@header).raises(RestClient::RequestTimeout).then.returns(response)
     RestClient::Resource.stub(:new, resource) do
       ratings = @ios_ratings_builder.send(:get_ratings, 123456789, 'us')
-      assert_equal(AppReputation::Ratings.new(1,2,3,5,8), ratings)
+      assert_equal(AppReputation::Ratings.new(1, 2, 3, 5, 8), ratings)
     end
   end
   
@@ -62,6 +62,14 @@ class IosRatingsBuilderTest < Minitest::Test
     end
   end
   
+  def test_get_multiple_ratings_concurrently
+    @ios_ratings_builder.expects(:get_ratings).with(123456789, 'cn').returns(AppReputation::Ratings.new(1, 2, 3, 4, 5)).once
+    @ios_ratings_builder.expects(:get_ratings).with(123456789, 'de').returns(AppReputation::Ratings.new(0, 1, 1, 2, 3)).once
+    @ios_ratings_builder.expects(:get_ratings).with(123456789, 'us').returns(AppReputation::Ratings.new(9, 9, 9, 9, 9)).once
+    ratings = @ios_ratings_builder.send(:get_multiple_ratings_concurrently, 123456789, 'cn', 'de', 'us')
+    assert_equal(AppReputation::Ratings.new(10, 12, 13, 15, 17), ratings)
+  end
+  
   def test_build_unsupported_countries
     assert_raises ArgumentError do
       @ios_ratings_builder.build(123456789, 'US', 'XX', 'OO')
@@ -71,5 +79,17 @@ class IosRatingsBuilderTest < Minitest::Test
   def test_build_with_one_country
     @ios_ratings_builder.expects(:get_ratings).with(123456789, 'CN').once
     @ios_ratings_builder.build(123456789, 'CN')
+  end
+  
+  def test_build_with_more_countries
+    ratings = AppReputation::Ratings.new(3, 1, 4, 1, 5)
+    @ios_ratings_builder.expects(:get_multiple_ratings_concurrently).with(123456789, 'US', 'GB', 'ES').returns(ratings).once
+    assert_equal(ratings, @ios_ratings_builder.build(123456789, 'US', 'GB', 'ES'))
+  end
+  
+  def test_build_with_all_countries
+    ratings = AppReputation::Ratings.new(1, 10, 100, 1000, 10000)
+    @ios_ratings_builder.expects(:get_multiple_ratings_concurrently).with(123456789, 'US', 'CN', 'GB', 'DE', 'ES').returns(ratings).once
+    assert_equal(ratings, @ios_ratings_builder.build(123456789))
   end
 end

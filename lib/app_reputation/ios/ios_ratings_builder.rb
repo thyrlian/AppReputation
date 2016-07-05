@@ -2,6 +2,7 @@ require 'rest-client'
 require_relative '../ratings'
 require_relative '../util/string'
 require_relative '../util/countries'
+require_relative '../util/concurrent_runner'
 
 module AppReputation
   class IosRatingsBuilder
@@ -28,11 +29,11 @@ module AppReputation
       end
       case countries.size
       when 0
-        puts 'Get ratings from all countrie'
+        get_multiple_ratings_concurrently(id, *@@supported_countries.list)
       when 1
-        return get_ratings(id, countries.first)
+        get_ratings(id, countries.first)
       else
-        puts "Get ratings from #{countries}"
+        get_multiple_ratings_concurrently(id, *countries)
       end
     end
     
@@ -58,6 +59,22 @@ module AppReputation
       end
     end
     
-    private :get_ratings
+    def get_multiple_ratings_concurrently(id, *countries)
+      jobs = countries.inject([]) do |memo, country|
+        job = Proc.new do
+          get_ratings(id, country)
+        end
+        memo.push(job)
+      end
+      concurrent_runner = ConcurrentRunner.set
+      concurrent_runner.set_consumer_thread
+      concurrent_runner.set_producer_thread(jobs)
+      concurrent_runner.run
+      concurrent_runner.results.inject(Ratings.new(0, 0, 0, 0, 0)) do |sum, ratings|
+        sum += ratings
+      end
+    end
+    
+    private :get_ratings, :get_multiple_ratings_concurrently
   end
 end
