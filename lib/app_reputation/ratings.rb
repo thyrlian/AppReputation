@@ -4,7 +4,18 @@ module AppReputation
     
     def initialize(*statistics)
       # statistics start from one star to top stars
-      @statistics = statistics
+      begin
+        are_params_valid = statistics.inject(true) do |result, x|
+          result && (x.to_i == x)
+        end
+      rescue NoMethodError
+        raise(ArgumentError, 'Ratings only accepts Integer values')
+      end
+      if are_params_valid
+        @statistics = statistics
+      else
+        raise(ArgumentError, 'Ratings only accepts Integer values')
+      end
     end
     
     def average
@@ -34,7 +45,7 @@ module AppReputation
         new_statistics = [@statistics, another_ratings.statistics].transpose.map { |x| x.inject(:+) }
         return self.class.new(*new_statistics)
       else
-        raise(ArgumentError, "Different types of ratings")
+        raise(ArgumentError, 'Different types of ratings')
       end
     end
   end
