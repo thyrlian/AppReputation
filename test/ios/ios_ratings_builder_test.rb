@@ -77,8 +77,9 @@ class IosRatingsBuilderTest < Minitest::Test
   end
   
   def test_build_with_one_country
-    @ios_ratings_builder.expects(:get_ratings).with(123456789, 'CN').once
-    @ios_ratings_builder.build(123456789, 'CN')
+    ratings = AppReputation::Ratings.new(6, 5, 5, 3, 6)
+    @ios_ratings_builder.expects(:get_ratings).with(123456789, 'CN').returns(ratings).once
+    assert_equal(ratings, @ios_ratings_builder.build(123456789, 'CN'))
   end
   
   def test_build_with_more_countries
