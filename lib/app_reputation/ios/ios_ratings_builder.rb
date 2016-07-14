@@ -6,7 +6,7 @@ require_relative '../util/concurrent_runner'
 
 module AppReputation
   class IosRatingsBuilder
-    @@base_url = 'https://itunes.apple.com/$[country]/customer-reviews/id$[id]?dataOnly=true&displayable-kind=11&appVersion=all'
+    @@base_url_itunes_client = 'https://itunes.apple.com/$[country]/customer-reviews/id$[id]?dataOnly=true&displayable-kind=11&appVersion=all'
     @@header_user_agent = {'User-Agent' => 'iTunes/12.4.1 (Macintosh; OS X 10.11.5) AppleWebKit/601.6.17'}
     @@timeout = 3
     @@max_retries = 3
@@ -38,7 +38,7 @@ module AppReputation
     end
     
     def get_ratings(id, country)
-      url = @@base_url.set_param(:country, country).set_param(:id, id)
+      url = @@base_url_itunes_client.set_param(:country, country).set_param(:id, id)
       resource = RestClient::Resource.new(url, :verify_ssl => false, :open_timeout => @@timeout)
       now_retry = 0
       begin
