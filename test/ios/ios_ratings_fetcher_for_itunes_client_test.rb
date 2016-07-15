@@ -42,7 +42,7 @@ class IosRatingsFetcherForItunesClientTest < Minitest::Test
     end
   end
   
-  def test_get_ratings_succeed_after_retry
+  def test_get_single_ratings_succeed_after_retry
     response = '{"ratingCountList":[1,2,3,5,8], "ratingCount": 19}'
     resource = mock()
     resource.stubs(:get).with(@header).raises(RestClient::RequestTimeout).then.returns(response)
@@ -52,7 +52,7 @@ class IosRatingsFetcherForItunesClientTest < Minitest::Test
     end
   end
   
-  def test_get_ratings_fail_all_retries
+  def test_get_single_ratings_fail_all_retries
     resource = mock()
     resource.stubs(:get).with(@header).raises(RestClient::RequestTimeout)
     RestClient::Resource.stub(:new, resource) do
