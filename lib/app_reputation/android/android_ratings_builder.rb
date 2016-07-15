@@ -4,10 +4,10 @@ require_relative '../ratings'
 
 module AppReputation
   class AndroidRatingsBuilder
-    @@base_url_google_play_web = 'https://play.google.com/store/apps/details?id='
+    @@base_url = 'https://play.google.com/store/apps/details?id='
     
     def build(id)
-      url = @@base_url_google_play_web + id
+      url = @@base_url + id
       page = HTTParty.get(url, :verify => false)
       doc = Nokogiri::HTML(page)
       statistics = %w(one two three four five).inject([]) do |ratings, star|
