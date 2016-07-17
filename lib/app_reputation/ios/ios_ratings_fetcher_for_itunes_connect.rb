@@ -15,9 +15,7 @@ module AppReputation
       ratings = nil
       begin
         url = @@ratings_url.set_param(:id, id)
-        resource = RestClient::Resource.new(url, :verify_ssl => false)
-        response = resource.get(headers)
-        ratings = response.body
+        ratings = send_request(:get, url, headers).body
       rescue RestClient::Unauthorized => e
         puts "Cannot authorize account: #{username}"
         puts e.message
@@ -26,7 +24,6 @@ module AppReputation
     end
     
     def authenticate(username, password)
-      cookies = {}
       payload = {'accountName' => username, 'password' => password, 'rememberMe' => false}.to_json
       header_content_type = 'application/json'
       header_accept = 'application/json, text/javascript, */*'
@@ -34,34 +31,44 @@ module AppReputation
       header_user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17'
       headers = {'Content-Type' => header_content_type, 'Accept' => header_accept, 'Accept-Encoding' => header_accept_encoding, 'User-Agent' => header_user_agent}
       
-      resource = RestClient::Resource.new(@@auth_url, :verify_ssl => false)
-      response = resource.get(headers)
-      response_cookies = response.history.first.cookies
-      cookies.merge!(response_cookies)
-      headers.merge!({:cookies => cookies})
-      
-      resource = RestClient::Resource.new(@@login_url, :verify_ssl => false)
-      response = resource.get(headers)
-      regex_widget_key = /var\sitcServiceKey\s*=\s*'(\w+)'/
-      widget_key = regex_widget_key.match(response.body)
-      headers['X-Apple-Widget-Key'] = widget_key[1] unless widget_key.nil?
-      
-      resource = RestClient::Resource.new(@@signin_url + "?widgetKey=#{widget_key[1]}", :verify_ssl => false)
-      response = resource.get(headers)
-      cookies.merge!(response.cookies)
-      headers.merge!({:cookies => cookies})
-      
-      resource = RestClient::Resource.new(@@signin_url, :verify_ssl => false)
-      response = resource.post(payload, headers)
-      cookies.merge!(response.cookies)
-      headers.merge!({:cookies => cookies})
-      
-      resource = RestClient::Resource.new(@@auth_url, :verify_ssl => false)
-      response = resource.get(headers)
+      send_request(:get, @@auth_url, headers)
+      send_request(:get, @@login_url, headers) do |response|
+        regex_widget_key = /var\sitcServiceKey\s*=\s*'(\w+)'/
+        widget_key = regex_widget_key.match(response.body)
+        headers['X-Apple-Widget-Key'] = widget_key[1] unless widget_key.nil?
+      end
+      send_request(:post, @@signin_url, headers, payload)
+      send_request(:get, @@auth_url, headers)
       
       headers
     end
     
-    private :authenticate
+    def send_request(method, url, headers, payload = nil, &blk)
+      resource = RestClient::Resource.new(url, :verify_ssl => false)
+      args = []
+      case method
+      when :get
+        args.push(headers)
+      when :post
+        args.push(payload, headers)
+      end
+      response = resource.send(method, *args)
+      
+      if block_given?
+        blk.call(response)
+      end
+      
+      cookies = headers.fetch(:cookies, {})
+      # merge cookies if there is any redirect request
+      response.history.each do |res|
+        cookies.merge!(res.cookies)
+      end
+      cookies.merge!(response.cookies)
+      headers.merge!({:cookies => cookies})
+      
+      response
+    end
+    
+    private :authenticate, :send_request
   end
 end
