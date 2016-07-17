@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "rest-client", "~> 1.8"
+  spec.add_development_dependency "rest-client", "~> 2.0"
   spec.add_development_dependency "httparty", "~> 0.13"
   spec.add_development_dependency "nokogiri", "~> 1.6"
 
