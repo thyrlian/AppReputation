@@ -41,4 +41,26 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
       assert_equal(expected_headers, headers)
     end
   end
+  
+  def test_authenticate
+    response = mock()
+    resource = mock()
+    response.stubs(:history).returns([])
+    response.stubs(:cookies).returns({'itunes' => 'connect'})
+    response.stubs(:body).returns("123456\nvar itcServiceKey = 'xxxXxxx0101'\nABCDEF\n")
+    resource.stubs(:get).returns(response)
+    resource.stubs(:post).returns(response)
+    expected_headers = {
+      'Content-Type' => 'application/json',
+      'Accept' => 'application/json, text/javascript, */*',
+      'Accept-Encoding' => 'gzip, deflate, br',
+      'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/601.6.17 (KHTML, like Gecko) Version/9.1.1 Safari/601.6.17',
+      'X-Apple-Widget-Key' => 'xxxXxxx0101',
+      :cookies => {'itunes' => 'connect'}
+    }
+    RestClient::Resource.stub(:new, resource) do
+      headers = @ios_ratings_fetcher.send(:authenticate, 'root', 'pass')
+      assert_equal(expected_headers, headers)
+    end
+  end
 end
