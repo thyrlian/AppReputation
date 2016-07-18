@@ -26,5 +26,19 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
   end
   
   def test_send_request_post_without_block
+    headers = {'X-Requested-With' => 'XMLHttpRequest'}
+    payload = {'what' => 'ever'}
+    url = mock()
+    resource = mock()
+    response = mock()
+    resource.stubs(:post).with(payload, headers).returns(response)
+    response.stubs(:history).returns([])
+    response.stubs(:cookies).returns({'woinst' => '3072', 'wosid' => 'a1B2c3D4e5F6g7'})
+    expected_cookies = {'woinst' => '3072', 'wosid' => 'a1B2c3D4e5F6g7'}
+    expected_headers = headers.merge({:cookies => expected_cookies})
+    RestClient::Resource.stub(:new, resource) do
+      @ios_ratings_fetcher.send(:send_request, :post, url, headers, payload)
+      assert_equal(expected_headers, headers)
+    end
   end
 end
