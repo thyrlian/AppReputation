@@ -18,7 +18,9 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     expected_cookies = {'myacinfo' => 'f0F0f0F0', 'woinst' => '3072', 'wosid' => 'a1B2c3D4e5F6g7'}
     expected_headers = headers.merge({:cookies => expected_cookies})
     RestClient::Resource.stub(:new, resource) do
-      @ios_ratings_fetcher.send(:send_request, :get, url, headers)
+      @ios_ratings_fetcher.send(:send_request, :get, url, headers) do |res|
+        assert_equal(response, res)
+      end
       assert_equal(expected_headers, headers)
     end
   end
