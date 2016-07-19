@@ -63,4 +63,16 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
       assert_equal(expected_headers, headers)
     end
   end
+  
+  def test_get_ratings_successfully
+    test_json_file = File.join(File.dirname(__FILE__), 'itunes_connect_ratings.json')
+    json = File.open(test_json_file, 'r') { |f| f.read }
+    headers = mock()
+    response = mock()
+    response.stubs(:body).returns(json)
+    @ios_ratings_fetcher.stubs(:authenticate).returns(headers)
+    @ios_ratings_fetcher.stubs(:send_request).returns(response)
+    ratings = @ios_ratings_fetcher.get_ratings(123456789, 'username', 'password')
+    assert_equal(AppReputation::Ratings.new(1, 2, 3, 77, 88), ratings)
+  end
 end

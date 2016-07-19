@@ -1,0 +1,36 @@
+{
+	"data": {
+		"versions": {
+			"1000001": "1.0",
+			"1000002": "2.0"
+		},
+		"storeFronts": [{
+			"countryCode": "XY",
+			"ratings": {
+    			"reviewCount": 12345,
+    			"ratingCount": 171,
+    			"ratingOneCount": 1,
+    			"ratingTwoCount": 2,
+    			"ratingThreeCount": 3,
+    			"ratingFourCount": 77,
+    			"ratingFiveCount": 88
+			},
+			"rssUrl": "https://itunes.apple.com/xy/rss/customerreviews/id=123456789/sortBy=mostRecent/xml?l=en"
+		}],
+		"ratings": {
+			"reviewCount": 12345,
+			"ratingCount": 171,
+			"ratingOneCount": 1,
+			"ratingTwoCount": 2,
+			"ratingThreeCount": 3,
+			"ratingFourCount": 77,
+			"ratingFiveCount": 88
+		}
+	},
+	"messages": {
+		"warn": null,
+		"info": null,
+		"error": null
+	},
+	"statusCode": "SUCCESS"
+}
