@@ -2,6 +2,7 @@ require 'json'
 require 'rest-client'
 require_relative '../ratings'
 require_relative '../util/string'
+require_relative '../util/exception/exception'
 
 module AppReputation
   class IosRatingsFetcherForItunesConnect
@@ -11,14 +12,24 @@ module AppReputation
     @@ratings_url = 'https://itunesconnect.apple.com/WebObjects/iTunesConnect.woa/ra/apps/$[id]/reviews/summary?platform=ios'
     
     def get_ratings(id, username, password)
-      headers = authenticate(username, password)
       ratings = nil
       begin
+        headers = authenticate(username, password)
         url = @@ratings_url.set_param(:id, id)
-        ratings = send_request(:get, url, headers).body
-      rescue RestClient::Unauthorized => e
-        puts "Cannot authorize account: #{username}"
-        puts e.message
+        response = send_request(:get, url, headers).body
+        json = JSON.parse(response)
+        if json['statusCode'] == 'SUCCESS'
+          ratings_data = json['data']['ratings']
+          statistics = []
+          statistics.push(ratings_data['ratingOneCount'])
+          statistics.push(ratings_data['ratingTwoCount'])
+          statistics.push(ratings_data['ratingThreeCount'])
+          statistics.push(ratings_data['ratingFourCount'])
+          statistics.push(ratings_data['ratingFiveCount'])
+          ratings = Ratings.new(*statistics)
+        end
+      rescue Exception::UnauthorizedError
+        raise(Exception::UnauthorizedError, {'username' => username, 'password' => password})
       end
       ratings
     end
@@ -51,22 +62,29 @@ module AppReputation
         args.push(headers)
       when :post
         args.push(payload, headers)
-      end
-      response = resource.send(method, *args)
-      
-      if block_given?
-        blk.call(response)
+      else
+        raise(NotImplementedError, "Method [ #{method} ] is not implemented in #{__method__}", caller)
       end
       
-      cookies = headers.fetch(:cookies, {})
-      # merge cookies if there is any redirect request
-      response.history.each do |res|
-        cookies.merge!(res.cookies)
+      begin
+        response = resource.send(method, *args)
+        
+        if block_given?
+          blk.call(response)
+        end
+        
+        cookies = headers.fetch(:cookies, {})
+        # merge cookies if there is any redirect request
+        response.history.each do |res|
+          cookies.merge!(res.cookies)
+        end
+        cookies.merge!(response.cookies)
+        headers.merge!({:cookies => cookies})
+        
+        return response
+      rescue RestClient::Unauthorized
+        raise Exception::UnauthorizedError
       end
-      cookies.merge!(response.cookies)
-      headers.merge!({:cookies => cookies})
-      
-      response
     end
     
     private :authenticate, :send_request
