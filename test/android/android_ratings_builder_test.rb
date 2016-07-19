@@ -2,7 +2,7 @@ require 'test_helper'
 
 class AndroidRatingsBuilderTest < Minitest::Test
   def setup
-    test_html_file = File.join(File.dirname(__FILE__), 'android_play_store_html')
+    test_html_file = File.join(File.dirname(__FILE__), 'android_play_store.html')
     @page = File.open(test_html_file, 'r') { |f| f.read }
     @android_ratings_builder = AppReputation::AndroidRatingsBuilder.new
   end
