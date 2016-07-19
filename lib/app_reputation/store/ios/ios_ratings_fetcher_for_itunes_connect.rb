@@ -1,8 +1,8 @@
 require 'json'
 require 'rest-client'
-require_relative '../ratings'
-require_relative '../util/string'
-require_relative '../util/exception/exception'
+require_relative '../../ratings'
+require_relative '../../util/string'
+require_relative '../../exception/exception'
 
 module AppReputation
   class IosRatingsFetcherForItunesConnect

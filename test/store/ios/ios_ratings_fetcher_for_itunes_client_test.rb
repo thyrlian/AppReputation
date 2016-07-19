@@ -1,5 +1,5 @@
 require 'test_helper'
-require_relative '../util/countries_test_helper'
+require_relative '../../util/countries_test_helper'
 
 class IosRatingsFetcherForItunesClientTest < Minitest::Test
   include CountriesTestHelper

@@ -1,8 +1,8 @@
 require 'rest-client'
-require_relative '../ratings'
-require_relative '../util/string'
-require_relative '../util/countries'
-require_relative '../util/concurrent_runner'
+require_relative '../../ratings'
+require_relative '../../util/string'
+require_relative '../../util/countries'
+require_relative '../../util/concurrent_runner'
 
 module AppReputation
   class IosRatingsFetcherForItunesClient

@@ -1,6 +1,6 @@
 require 'httparty'
 require 'nokogiri'
-require_relative '../ratings'
+require_relative '../../ratings'
 
 module AppReputation
   class AndroidRatingsBuilder
