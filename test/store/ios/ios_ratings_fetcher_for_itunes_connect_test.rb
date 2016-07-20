@@ -59,7 +59,7 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     headers = mock()
     payload = mock()
     resource = mock()
-    resource.stubs(:post).with(payload, headers).raises(AppReputation::Exception::UnauthorizedError)
+    resource.stubs(:post).with(payload, headers).raises(RestClient::Unauthorized)
     RestClient::Resource.stub(:new, resource) do
       assert_raises AppReputation::Exception::UnauthorizedError do
         @ios_ratings_fetcher.send(:send_request, :post, url, headers, payload)
