@@ -42,6 +42,31 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     end
   end
   
+  def test_send_request_with_unknown_method
+    url = mock()
+    headers = mock()
+    payload = mock()
+    resource = mock()
+    RestClient::Resource.stub(:new, resource) do
+      assert_raises NotImplementedError do
+        @ios_ratings_fetcher.send(:send_request, :pxt, url, headers, payload)
+      end
+    end
+  end
+  
+  def test_send_request_with_unauthorized_error
+    url = mock()
+    headers = mock()
+    payload = mock()
+    resource = mock()
+    resource.stubs(:post).with(payload, headers).raises(AppReputation::Exception::UnauthorizedError)
+    RestClient::Resource.stub(:new, resource) do
+      assert_raises AppReputation::Exception::UnauthorizedError do
+        @ios_ratings_fetcher.send(:send_request, :post, url, headers, payload)
+      end
+    end
+  end
+  
   def test_authenticate
     response = mock()
     resource = mock()
@@ -74,5 +99,12 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     @ios_ratings_fetcher.stubs(:send_request).returns(response)
     ratings = @ios_ratings_fetcher.get_ratings(123456789, 'username', 'password')
     assert_equal(AppReputation::Ratings.new(1, 2, 3, 77, 88), ratings)
+  end
+  
+  def test_get_ratings_with_unauthorized_error
+    @ios_ratings_fetcher.stubs(:authenticate).raises(AppReputation::Exception::UnauthorizedError)
+    assert_raises AppReputation::Exception::UnauthorizedError do
+      @ios_ratings_fetcher.get_ratings(123456789, 'username', 'password')
+    end
   end
 end
