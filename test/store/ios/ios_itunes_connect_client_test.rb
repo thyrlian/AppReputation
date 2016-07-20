@@ -1,8 +1,8 @@
 require 'test_helper'
 
-class IosRatingsFetcherForItunesConnectTest < Minitest::Test
+class IosItunesConnectClientTest < Minitest::Test
   def setup
-    @ios_ratings_fetcher = AppReputation::IosRatingsFetcherForItunesConnect.new
+    @client = AppReputation::IosItunesConnectClient.new('root', 'okok')
   end
   
   def test_send_request_get_with_block
@@ -18,7 +18,7 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     expected_cookies = {'myacinfo' => 'f0F0f0F0', 'woinst' => '3072', 'wosid' => 'a1B2c3D4e5F6g7'}
     expected_headers = headers.merge({:cookies => expected_cookies})
     RestClient::Resource.stub(:new, resource) do
-      @ios_ratings_fetcher.send(:send_request, :get, url, headers) do |res|
+      @client.send(:send_request, :get, url, headers) do |res|
         assert_equal(response, res)
       end
       assert_equal(expected_headers, headers)
@@ -37,7 +37,7 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     expected_cookies = {'woinst' => '3072', 'wosid' => 'a1B2c3D4e5F6g7'}
     expected_headers = headers.merge({:cookies => expected_cookies})
     RestClient::Resource.stub(:new, resource) do
-      @ios_ratings_fetcher.send(:send_request, :post, url, headers, payload)
+      @client.send(:send_request, :post, url, headers, payload)
       assert_equal(expected_headers, headers)
     end
   end
@@ -49,7 +49,7 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     resource = mock()
     RestClient::Resource.stub(:new, resource) do
       assert_raises NotImplementedError do
-        @ios_ratings_fetcher.send(:send_request, :pxt, url, headers, payload)
+        @client.send(:send_request, :pxt, url, headers, payload)
       end
     end
   end
@@ -62,7 +62,7 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     resource.stubs(:post).with(payload, headers).raises(RestClient::Unauthorized)
     RestClient::Resource.stub(:new, resource) do
       assert_raises AppReputation::Exception::UnauthorizedError do
-        @ios_ratings_fetcher.send(:send_request, :post, url, headers, payload)
+        @client.send(:send_request, :post, url, headers, payload)
       end
     end
   end
@@ -84,8 +84,8 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
       :cookies => {'itunes' => 'connect'}
     }
     RestClient::Resource.stub(:new, resource) do
-      headers = @ios_ratings_fetcher.send(:authenticate, 'root', 'pass')
-      assert_equal(expected_headers, headers)
+      @client.authenticate
+      assert_equal(expected_headers, @client.headers)
     end
   end
   
@@ -95,16 +95,16 @@ class IosRatingsFetcherForItunesConnectTest < Minitest::Test
     headers = mock()
     response = mock()
     response.stubs(:body).returns(json)
-    @ios_ratings_fetcher.stubs(:authenticate).returns(headers)
-    @ios_ratings_fetcher.stubs(:send_request).returns(response)
-    ratings = @ios_ratings_fetcher.get_ratings(123456789, 'username', 'password')
+    @client.stubs(:authenticate).returns(headers)
+    @client.stubs(:send_request).returns(response)
+    ratings = @client.get_ratings(123456789)
     assert_equal(AppReputation::Ratings.new(1, 2, 3, 77, 88), ratings)
   end
   
   def test_get_ratings_with_unauthorized_error
-    @ios_ratings_fetcher.stubs(:authenticate).raises(AppReputation::Exception::UnauthorizedError)
+    @client.stubs(:authenticate).raises(AppReputation::Exception::UnauthorizedError)
     assert_raises AppReputation::Exception::UnauthorizedError do
-      @ios_ratings_fetcher.get_ratings(123456789, 'username', 'password')
+      @client.get_ratings(123456789)
     end
   end
 end
