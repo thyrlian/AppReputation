@@ -10,6 +10,7 @@ module AppReputation
     @@login_url = 'https://itunesconnect.apple.com/itc/static-resources/controllers/login_cntrl.js'
     @@signin_url = 'https://idmsa.apple.com/appleauth/auth/signin'
     @@ratings_url = 'https://itunesconnect.apple.com/WebObjects/iTunesConnect.woa/ra/apps/$[id]/reviews/summary?platform=ios'
+    @@installations_url = 'https://reportingitc2.apple.com/api/data/timeseries'
     
     attr_reader :headers
     
@@ -93,6 +94,37 @@ module AppReputation
         raise(Exception::UnauthorizedError, {'username' => @username, 'password' => @password})
       end
       ratings
+    end
+    
+    def get_installations(id)
+      installations = nil
+      begin
+        now = Time.now
+        date_format = '%Y-%m-%dT00:00:00.000Z'
+        start_date = (now - 6*24*60*60).strftime(date_format)
+        end_date = now.strftime(date_format)
+        payload = {
+          'filters' => [{'dimension_key' => 'content', 'option_keys' => [id.to_s]}],
+          'group' => 'content',
+          'interval' => 'day',
+          'start_date' => start_date,
+          'end_date' => end_date,
+          'sort' => 'descending',
+          'limit' => 100,
+          'measures' => ['units_utc']
+        }.to_json
+        authenticate if @headers.empty?
+        response = send_request(:post, @@installations_url, @headers, payload).body
+        json = JSON.parse(response)
+        regex_date = /\d{4}-\d{2}-\d{2}/
+        installations = json.first['data'].inject({}) do |all_days, one_day|
+          all_days[regex_date.match(one_day['date'])[0]] = one_day['units_utc']
+          all_days
+        end
+      rescue Exception::UnauthorizedError
+        raise(Exception::UnauthorizedError, {'username' => @username, 'password' => @password})
+      end
+      installations
     end
     
     private :send_request
