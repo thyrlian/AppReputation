@@ -1,0 +1,31 @@
+[{
+	"metadata": {
+		"key": "123456789",
+		"title": "Basgeekball",
+		"contentSpecificTypeId": "1",
+		"contentSpecificTypeName": "iOS App",
+		"artistName": "Acme Corporation",
+		"contentGrpCd": "Apps",
+		"supportedPlatformName": "iOS",
+		"rptgDesc": "App"
+	},
+	"data": [{
+		"date": "2016-08-18T00:00:00.000Z",
+		"units_utc": 1200
+	}, {
+		"date": "2016-08-19T00:00:00.000Z",
+		"units_utc": 900
+	}, {
+		"date": "2016-08-20T00:00:00.000Z",
+		"units_utc": 800
+	}, {
+		"date": "2016-08-21T00:00:00.000Z",
+		"units_utc": 1500
+	}, {
+		"date": "2016-08-22T00:00:00.000Z",
+		"units_utc": 1000
+	}, {
+		"date": "2016-08-23T00:00:00.000Z",
+		"units_utc": 1024
+	}]
+}]

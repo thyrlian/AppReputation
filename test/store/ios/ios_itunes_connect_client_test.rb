@@ -121,4 +121,22 @@ class IosItunesConnectClientTest < Minitest::Test
     ratings = @client.get_ratings(123456789)
     assert_equal(AppReputation::Ratings.new(1, 2, 3, 77, 88), ratings)
   end
+  
+  def test_get_installations
+    test_json_file = File.join(File.dirname(__FILE__), 'itunes_connect_installations.json')
+    json = File.open(test_json_file, 'r') { |f| f.read }
+    response = mock()
+    response.stubs(:body).returns(json)
+    @client.stubs(:send_request).returns(response)
+    installations = @client.get_installations(123456789)
+    expected_installations = [
+      AppReputation::Installations.new('2016-08-18', 1200),
+      AppReputation::Installations.new('2016-08-19', 900),
+      AppReputation::Installations.new('2016-08-20', 800),
+      AppReputation::Installations.new('2016-08-21', 1500),
+      AppReputation::Installations.new('2016-08-22', 1000),
+      AppReputation::Installations.new('2016-08-23', 1024)
+    ]
+    assert_equal(expected_installations, installations)
+  end
 end

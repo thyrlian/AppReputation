@@ -1,6 +1,7 @@
 require 'json'
 require 'rest-client'
 require_relative '../../ratings'
+require_relative '../../installations'
 require_relative '../../util/string'
 require_relative '../../exception/exception'
 
@@ -124,9 +125,8 @@ module AppReputation
         response = send_request(:post, @@installations_url, @headers, payload).body
         json = JSON.parse(response)
         regex_date = /\d{4}-\d{2}-\d{2}/
-        installations = json.first['data'].inject({}) do |all_days, one_day|
-          all_days[regex_date.match(one_day['date'])[0]] = one_day['units_utc']
-          all_days
+        installations = json.first['data'].inject([]) do |all_days, one_day|
+          all_days.push(Installations.new(regex_date.match(one_day['date'])[0], one_day['units_utc']))
         end
       end
       installations
