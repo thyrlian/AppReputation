@@ -73,10 +73,20 @@ module AppReputation
       @headers = headers
     end
     
-    def get_ratings(id)
-      ratings = nil
+    def auth_and_process(&blk)
       begin
         authenticate if @headers.empty?
+        if block_given?
+          blk.call
+        end
+      rescue Exception::UnauthorizedError
+        raise(Exception::UnauthorizedError, {'username' => @username, 'password' => @password})
+      end
+    end
+    
+    def get_ratings(id)
+      ratings = nil
+      auth_and_process do
         url = @@ratings_url.set_param(:id, id)
         response = send_request(:get, url, @headers).body
         json = JSON.parse(response)
@@ -90,15 +100,13 @@ module AppReputation
           statistics.push(ratings_data['ratingFiveCount'])
           ratings = Ratings.new(*statistics)
         end
-      rescue Exception::UnauthorizedError
-        raise(Exception::UnauthorizedError, {'username' => @username, 'password' => @password})
       end
       ratings
     end
     
     def get_installations(id)
       installations = nil
-      begin
+      auth_and_process do
         now = Time.now
         date_format = '%Y-%m-%dT00:00:00.000Z'
         start_date = (now - 6*24*60*60).strftime(date_format)
@@ -113,7 +121,6 @@ module AppReputation
           'limit' => 100,
           'measures' => ['units_utc']
         }.to_json
-        authenticate if @headers.empty?
         response = send_request(:post, @@installations_url, @headers, payload).body
         json = JSON.parse(response)
         regex_date = /\d{4}-\d{2}-\d{2}/
@@ -121,12 +128,10 @@ module AppReputation
           all_days[regex_date.match(one_day['date'])[0]] = one_day['units_utc']
           all_days
         end
-      rescue Exception::UnauthorizedError
-        raise(Exception::UnauthorizedError, {'username' => @username, 'password' => @password})
       end
       installations
     end
     
-    private :send_request
+    private :send_request, :authenticate, :auth_and_process
   end
 end

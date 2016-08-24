@@ -84,27 +84,41 @@ class IosItunesConnectClientTest < Minitest::Test
       :cookies => {'itunes' => 'connect'}
     }
     RestClient::Resource.stub(:new, resource) do
-      @client.authenticate
+      @client.send(:authenticate)
       assert_equal(expected_headers, @client.headers)
     end
   end
   
-  def test_get_ratings_successfully
+  def test_auth_and_process_without_block
+    headers = mock()
+    @client.stubs(:authenticate).returns(headers)
+    @client.send(:auth_and_process)
+  end
+  
+  def test_auth_and_process_with_block
+    test_obj = 10
+    headers = mock()
+    @client.stubs(:authenticate).returns(headers)
+    @client.send(:auth_and_process) do
+      test_obj = 1024
+    end
+    assert_equal(1024, test_obj)
+  end
+  
+  def test_auth_and_process_with_unauthorized_error
+    @client.stubs(:authenticate).raises(AppReputation::Exception::UnauthorizedError)
+    assert_raises AppReputation::Exception::UnauthorizedError do
+      @client.send(:auth_and_process)
+    end
+  end
+  
+  def test_get_ratings
     test_json_file = File.join(File.dirname(__FILE__), 'itunes_connect_ratings.json')
     json = File.open(test_json_file, 'r') { |f| f.read }
-    headers = mock()
     response = mock()
     response.stubs(:body).returns(json)
-    @client.stubs(:authenticate).returns(headers)
     @client.stubs(:send_request).returns(response)
     ratings = @client.get_ratings(123456789)
     assert_equal(AppReputation::Ratings.new(1, 2, 3, 77, 88), ratings)
-  end
-  
-  def test_get_ratings_with_unauthorized_error
-    @client.stubs(:authenticate).raises(AppReputation::Exception::UnauthorizedError)
-    assert_raises AppReputation::Exception::UnauthorizedError do
-      @client.get_ratings(123456789)
-    end
   end
 end
