@@ -82,6 +82,8 @@ module AppReputation
         end
       rescue Exception::UnauthorizedError
         raise(Exception::UnauthorizedError, {'username' => @username, 'password' => @password})
+      rescue SocketError
+        raise('Experiencing network connectivity problems.')
       end
     end
     

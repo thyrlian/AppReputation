@@ -112,6 +112,13 @@ class IosItunesConnectClientTest < Minitest::Test
     end
   end
   
+  def test_auth_and_process_with_socket_error
+    @client.stubs(:authenticate).raises(SocketError)
+    assert_raises RuntimeError do
+      @client.send(:auth_and_process)
+    end
+  end
+  
   def test_get_ratings
     test_json_file = File.join(File.dirname(__FILE__), 'itunes_connect_ratings.json')
     json = File.open(test_json_file, 'r') { |f| f.read }
