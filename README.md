@@ -24,7 +24,18 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'app_reputation'
+
+include AppReputation
+
+android_app_id = 'com.example.app'
+ios_app_id = 123456789
+
+# Android Ratings
+
+# iOS Ratings
+```
 
 ## Development
 
