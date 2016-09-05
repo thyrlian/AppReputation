@@ -4,19 +4,11 @@ module AppReputation
   class RestClientHelper
     class << self
       def send_request(method, url, headers, payload = nil, &blk)
-        resource = RestClient::Resource.new(url, :verify_ssl => false)
-        args = []
-        case method
-        when :get
-          args.push(headers)
-        when :post
-          args.push(payload, headers)
-        else
-          raise(NotImplementedError, "Method [ #{method} ] is not implemented in #{__method__}", caller)
-        end
+        args = {:method => method, :url => url, :verify_ssl => false, :headers => headers}
+        args[:payload] = payload if payload
         
         begin
-          response = resource.send(method, *args)
+          response = RestClient::Request.execute(args)
           
           if block_given?
             blk.call(response)

@@ -7,12 +7,9 @@ class IosItunesConnectClientTest < Minitest::Test
   
   def test_authenticate
     response = mock()
-    resource = mock()
     response.stubs(:history).returns([])
     response.stubs(:cookies).returns({'itunes' => 'connect'})
     response.stubs(:body).returns("123456\nvar itcServiceKey = 'xxxXxxx0101'\nABCDEF\n")
-    resource.stubs(:get).returns(response)
-    resource.stubs(:post).returns(response)
     expected_headers = {
       'Content-Type' => 'application/json',
       'Accept' => 'application/json, text/javascript, */*',
@@ -21,7 +18,7 @@ class IosItunesConnectClientTest < Minitest::Test
       'X-Apple-Widget-Key' => 'xxxXxxx0101',
       :cookies => {'itunes' => 'connect'}
     }
-    RestClient::Resource.stub(:new, resource) do
+    RestClient::Request.stub(:execute, response) do
       @client.send(:authenticate)
       assert_equal(expected_headers, @client.headers)
     end
