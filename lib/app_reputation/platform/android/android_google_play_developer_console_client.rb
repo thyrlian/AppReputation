@@ -1,5 +1,5 @@
 require 'cgi'
-require 'uri'
+require 'webrick'
 require_relative '../../helper/rest_client_helper'
 
 module AppReputation
@@ -7,7 +7,7 @@ module AppReputation
     @@continue_url = 'https://play.google.com/apps/publish/#'
     @@followup_url = 'https://play.google.com/apps/publish/'
     @@main_url = 'https://play.google.com/apps/publish/'
-    @@login_url = "https://accounts.google.com/ServiceLogin?service=androiddeveloper&passive=1209600&continue=#{URI.escape(@@continue_url)}&followup=#{@@followup_url}"
+    @@login_url = "https://accounts.google.com/ServiceLogin?service=androiddeveloper&passive=1209600&continue=#{WEBrick::HTTPUtils.escape(@@continue_url)}&followup=#{@@followup_url}"
     @@login_url_2 = 'https://accounts.google.com/accountLoginInfoXhr'
     
     attr_reader :headers
