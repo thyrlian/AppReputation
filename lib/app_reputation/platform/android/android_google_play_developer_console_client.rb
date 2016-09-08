@@ -28,27 +28,39 @@ module AppReputation
       payload = {}
       RestClientHelper.send_request(:get, @@main_url, headers)
       RestClientHelper.send_request(:get, @@login_url, headers) do |response|
-        regex_kvp = /<input\s.*?/
-        regex_type = /type="hidden"/
-        regex_name = /name="(.*?)"/
-        regex_value = /value="(.*?)"/
-        response.body.each_line do |l|
-          if regex_kvp.match(l) && regex_type.match(l)
-            name = regex_name.match(l)[1]
-            value = (regex_value.match(l) || {})[1]
-            value = CGI.unescapeHTML(value) if value
-            payload[name] = value
-          end
+        payload = compose_payload(response.body) do |pl|
+          pl.merge!({
+            'Email' => @username,
+            'requestlocation' => @@login_url + '#identifier'
+          })
         end
       end
-      payload.merge!({
-        'Email' => @username,
-        'requestlocation' => @@login_url + '#identifier'
-      })
       RestClientHelper.send_request(:post, @@login_url_2, headers.merge({'Referer' => @@login_url}), payload)
       payload = {}
       
       @headers = headers
     end
+    
+    def compose_payload(html, &blk)
+      regex_kvp = /<input\s.*?/
+      regex_type = /type="hidden"/
+      regex_name = /name="(.*?)"/
+      regex_value = /value="(.*?)"/
+      payload = html.split("\n").inject({}) do |hsh, line|
+        if regex_kvp.match(line) && regex_type.match(line)
+          name = regex_name.match(line)[1]
+          value = (regex_value.match(line) || {})[1]
+          value = CGI.unescapeHTML(value) if value
+          hsh[name] = value
+        end
+        hsh
+      end
+      if block_given?
+        blk.call(payload)
+      end
+      payload
+    end
+    
+    private :compose_payload
   end
 end
