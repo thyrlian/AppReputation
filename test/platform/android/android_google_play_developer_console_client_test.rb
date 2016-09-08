@@ -12,6 +12,7 @@ class AndroidGooglePlayDeveloperConsoleClientTest < Minitest::Test
       <input id="Email" name="Email" placeholder="Email" type="email" value="" spellcheck="false">
       <input type="hidden" id="dnConn" name="dnConn" value="">
       <input type="hidden" id="checkConnection" name="checkConnection">
+      <input type="hidden" id="_utf8" name="_utf8" value="&#9731;"/>
       </html>
     EOF
   end
@@ -40,7 +41,8 @@ class AndroidGooglePlayDeveloperConsoleClientTest < Minitest::Test
       'Page' => 'PasswordSeparationSignIn',
       'GALX' => 'iJlDexyz8aB',
       'dnConn' => '',
-      'checkConnection' => nil
+      'checkConnection' => nil,
+      '_utf8' => '☃'
     }, payload)
   end
   
@@ -53,6 +55,7 @@ class AndroidGooglePlayDeveloperConsoleClientTest < Minitest::Test
       'GALX' => 'iJlDexyz8aB',
       'dnConn' => '',
       'checkConnection' => nil,
+      '_utf8' => '☃',
       'secret' => '123abc'
     }, payload)
   end
