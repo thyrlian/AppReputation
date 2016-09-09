@@ -34,7 +34,7 @@ class RestClientHelperTest < Minitest::Test
     end
   end
   
-  def test_send_request_with_unauthorized_error
+  def test_send_request_with_unauthorized_exception
     url = mock()
     headers = mock()
     payload = mock()
@@ -42,5 +42,16 @@ class RestClientHelperTest < Minitest::Test
     assert_raises AppReputation::Exception::UnauthorizedError do
       AppReputation::RestClientHelper.send_request(:post, url, headers, payload)
     end
+  end
+  
+  def test_send_request_with_found_exception
+    url = mock()
+    headers = mock()
+    payload = mock()
+    response = mock()
+    RestClient::Request.stubs(:execute).with(any_parameters).raises(RestClient::Found)
+    RestClient::Found.any_instance.stubs(:response).returns(response)
+    AppReputation::RestClientHelper.expects(:handle_response).with(response, headers).returns(response).once
+    assert_equal(response, AppReputation::RestClientHelper.send_request(:post, url, headers, payload))
   end
 end
