@@ -15,13 +15,16 @@ class AndroidGooglePlayDeveloperConsoleClientTest < Minitest::Test
       <input type="hidden" id="_utf8" name="_utf8" value="&#9731;"/>
       </html>
     EOF
+    @test_json = '{"email": "acme@example.com","shadow_email": "","encoded_profile_information": "ATM1q2w3e4r5t6y7u8i9o0p","action": "ASK_PASSWORD"}'
   end
   
   def test_authenticate
     response = mock()
     response.stubs(:history).returns([])
     response.stubs(:cookies).returns({'play' => 'console'})
-    response.stubs(:body).returns(@test_html)
+    response.stubs(:body).returns(@test_html).then.returns(@test_json)
+    response.stubs(:code).returns(302)
+    response.stubs(:headers).returns({:location => 'https://accounts.google.com/CheckCookie?checkedDomains=youtube&chtml=LoginDoneHtml&gidl=ABCDefgh'})
     expected_headers = {
       'Content-Type' => 'application/x-www-form-urlencoded',
       'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
