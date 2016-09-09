@@ -9,6 +9,7 @@ module AppReputation
     @@main_url = 'https://play.google.com/apps/publish/'
     @@login_url = "https://accounts.google.com/ServiceLogin?service=androiddeveloper&passive=1209600&continue=#{WEBrick::HTTPUtils.escape(@@continue_url)}&followup=#{@@followup_url}"
     @@login_url_2 = 'https://accounts.google.com/accountLoginInfoXhr'
+    @@signin_url = 'https://accounts.google.com/signin/challenge/sl/password'
     
     attr_reader :headers
     
@@ -26,7 +27,9 @@ module AppReputation
       headers = {'Content-Type' => header_content_type, 'Accept' => header_accept, 'Accept-Encoding' => header_accept_encoding, 'User-Agent' => header_user_agent}
       
       payload = {}
+      
       RestClientHelper.send_request(:get, @@main_url, headers)
+      
       RestClientHelper.send_request(:get, @@login_url, headers) do |response|
         payload = compose_payload(response.body) do |pl|
           pl.merge!({
@@ -35,8 +38,20 @@ module AppReputation
           })
         end
       end
-      RestClientHelper.send_request(:post, @@login_url_2, headers.merge({'Referer' => @@login_url}), payload)
-      payload = {}
+      
+      RestClientHelper.send_request(:post, @@login_url_2, headers.merge({'Referer' => @@login_url}), payload) do |response|
+        payload['ProfileInformation'] = JSON.parse(response.body)['encoded_profile_information']
+      end
+      
+      payload.delete('requestlocation')
+      payload['Passwd'] = @password
+      new_url = ''
+      
+      RestClientHelper.send_request(:post, @@signin_url, headers, payload) do |response|
+        if response.code == 302
+          new_url = response.headers[:location]
+        end
+      end
       
       @headers = headers
     end
