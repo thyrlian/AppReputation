@@ -19,11 +19,19 @@ module AppReputation
     
     def authenticate
       header_connection = 'keep-alive'
+      header_upgrade_insecure_requests = '1'
       header_content_type = 'application/x-www-form-urlencoded'
       header_accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-      header_accept_encoding = 'gzip, deflate, br'
+      header_accept_encoding = 'gzip, deflate, sdch, br'
       header_user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
-      headers = {'Connection' => header_connection, 'Content-Type' => header_content_type, 'Accept' => header_accept, 'Accept-Encoding' => header_accept_encoding, 'User-Agent' => header_user_agent}
+      headers = {
+        'Connection' => header_connection,
+        'Upgrade-Insecure-Requests' => header_upgrade_insecure_requests,
+        'Content-Type' => header_content_type,
+        'Accept' => header_accept,
+        'Accept-Encoding' => header_accept_encoding,
+        'User-Agent' => header_user_agent
+      }
       
       payload = {}
       
