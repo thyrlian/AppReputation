@@ -31,7 +31,6 @@ class AndroidGooglePlayDeveloperConsoleClientTest < Minitest::Test
     expected_headers = {
       'Connection' => 'keep-alive',
       'Upgrade-Insecure-Requests' => '1',
-      'Content-Type' => 'application/x-www-form-urlencoded',
       'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
       'Accept-Encoding' => 'gzip, deflate, sdch, br',
       'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
