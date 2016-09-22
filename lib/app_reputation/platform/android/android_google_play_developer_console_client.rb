@@ -20,28 +20,26 @@ module AppReputation
     def authenticate
       header_connection = 'keep-alive'
       header_upgrade_insecure_requests = '1'
-      header_content_type = 'application/x-www-form-urlencoded'
       header_accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
       header_accept_encoding = 'gzip, deflate, sdch, br'
       header_user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
       headers = {
         'Connection' => header_connection,
         'Upgrade-Insecure-Requests' => header_upgrade_insecure_requests,
-        'Content-Type' => header_content_type,
         'Accept' => header_accept,
         'Accept-Encoding' => header_accept_encoding,
         'User-Agent' => header_user_agent
       }
-      
       payload = {}
-      
       new_url = ''
       
       RestClientHelper.send_request(:get, @@main_url, headers) do |response|
         new_url = (Nokogiri::HTML(response.body).css('noscript').first.children.first.attribute('content').value.match(/url='(.*?)'/) || '')[1]
       end
       
-      RestClientHelper.send_request(:get, new_url, headers) do |response|
+      new_headers = headers.merge({'Referer' => @@main_url})
+      
+      RestClientHelper.send_request(:get, new_url, new_headers) do |response|
         payload = compose_payload(response.body) do |pl|
           pl.merge!({
             'Email' => @username,
@@ -50,18 +48,39 @@ module AppReputation
         end
       end
       
-      RestClientHelper.send_request(:post, @@login_url, headers.merge({'Referer' => new_url}), payload) do |response|
+      headers.merge!({'Referer' => new_url})
+      new_headers = headers.merge({
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Accept' => '*/*',
+        'Accept-Encoding' => 'gzip, deflate, br',
+        'Origin' => 'https://accounts.google.com'
+        }).reject { |k, v| k == 'Upgrade-Insecure-Requests' }
+      
+      RestClientHelper.send_request(:post, @@login_url, new_headers, payload) do |response|
         payload['ProfileInformation'] = JSON.parse(response.body)['encoded_profile_information']
       end
       
       payload.delete('requestlocation')
       payload['Passwd'] = @password
+      new_headers = headers.merge({
+        'Content-Type' => 'application/x-www-form-urlencoded',
+        'Cache-Control' => 'max-age=0',
+        'Accept-Encoding' => 'gzip, deflate, br',
+        'Origin' => 'https://accounts.google.com'
+      })
       
-      RestClientHelper.send_request(:post, @@signin_url, headers, payload) do |response|
+      RestClientHelper.send_request(:post, @@signin_url, new_headers, payload) do |response|
         if response.code == 302
           new_url = response.headers[:location]
         end
       end
+      
+      payload.delete('Passwd')
+      new_headers = headers.merge({'Cache-Control' => 'max-age=0'})
+      
+      RestClientHelper.send_request(:get, new_url, new_headers)
+      
+      headers.delete('Referer')
       
       @headers = headers
     end
