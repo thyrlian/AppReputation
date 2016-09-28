@@ -2,6 +2,7 @@ require 'cgi'
 require 'webrick'
 require 'nokogiri'
 require_relative '../../helper/rest_client_helper'
+require_relative '../../util/string'
 
 module AppReputation
   class AndroidGooglePlayDeveloperConsoleClient
@@ -75,10 +76,25 @@ module AppReputation
         end
       end
       
+      new_url.gsub!(/pstMsg=0/, 'checkedDomains=youtube&checkConnection=youtube%3A1029%3A1&pstMsg=1')
+      
       payload.delete('Passwd')
       new_headers = headers.merge({'Cache-Control' => 'max-age=0'})
       
-      RestClientHelper.send_request(:get, new_url, new_headers)
+      RestClientHelper.send_request(:get, new_url, new_headers) do |response|
+        match = false
+        script = Nokogiri::HTML(response.body).css('script').first.content.split("\n")
+        script.each do |line|
+          if match
+            if /uri:\s*?'(.*?)'/.match(line)
+              new_url = $1.escape_uri
+              break
+            end
+          elsif /window.__DOMAIN_SETTINGS\['(.*?)'\]/.match(line) && /accounts\.google\.com/.match($1)
+            match = true
+          end
+        end
+      end
       
       headers.delete('Referer')
       
