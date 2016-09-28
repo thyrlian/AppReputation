@@ -13,13 +13,13 @@ class StringTest < Minitest::Test
   end
   
   def test_escape_uri_positive
-    string = "https:\\x2F\\x2Faccounts.google.com\\x2Faccounts"
+    string = "https:\\x2F\\x2Faccounts.google.com\\x2faccounts"
     expected = 'https://accounts.google.com/accounts'
     assert_equal(expected, string.escape_uri)
   end
   
   def test_escape_uri_negative
-    string = 'This is a test!!!'
+    string = 'This should not have any side effect!@#$%^&*()-=[];\/<>'
     assert_equal(string, string.escape_uri)
   end
 end

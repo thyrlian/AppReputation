@@ -4,6 +4,6 @@ class String
   end
   
   def escape_uri
-    `echo #{self.inspect}`.chomp
+    self.gsub(/\\x([0-9A-Fa-f]{2})/) { $~.captures.first.to_i(16).chr(Encoding::UTF_8) }
   end
 end
