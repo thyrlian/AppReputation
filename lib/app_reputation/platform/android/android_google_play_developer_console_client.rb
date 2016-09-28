@@ -55,7 +55,7 @@ module AppReputation
         'Accept' => '*/*',
         'Accept-Encoding' => 'gzip, deflate, br',
         'Origin' => 'https://accounts.google.com'
-        }).reject { |k, v| k == 'Upgrade-Insecure-Requests' }
+        }).reject { |k| k == 'Upgrade-Insecure-Requests' }
       
       RestClientHelper.send_request(:post, @@login_url, new_headers, payload) do |response|
         payload['ProfileInformation'] = JSON.parse(response.body)['encoded_profile_information']
