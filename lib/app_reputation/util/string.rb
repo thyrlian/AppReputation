@@ -4,6 +4,6 @@ class String
   end
   
   def escape_uri
-    self.gsub(/\\x([0-9A-Fa-f]{2})/) { $~.captures.first.to_i(16).chr(Encoding::UTF_8) }
+    self.gsub(/\\x([0-9A-Fa-f]{2})/) { $~.captures.pack('H*') }
   end
 end
