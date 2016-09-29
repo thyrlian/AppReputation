@@ -97,6 +97,14 @@ module AppReputation
         end
       end
       
+      new_headers = headers.reject { |k| k == :cookies }
+      
+      RestClientHelper.send_request(:get, new_url, new_headers)
+      
+      headers[:cookies].reject! { |k| %w(GALX GAPS LSID RMME).include?(k) }
+      
+      RestClientHelper.send_request(:get, @@main_url, headers)
+      
       headers.delete('Referer')
       
       @headers = headers
