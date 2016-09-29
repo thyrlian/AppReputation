@@ -87,6 +87,7 @@ module AppReputation
         script.each do |line|
           if match
             if /uri:\s*?'(.*?)'/.match(line)
+              headers.merge!({'Referer' => new_url})
               new_url = $1.escape_uri
               break
             end
