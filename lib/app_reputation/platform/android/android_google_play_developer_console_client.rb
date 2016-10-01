@@ -16,6 +16,7 @@ module AppReputation
       @username = username
       @password = password
       @headers = {}
+      @xsrf_token = ''
     end
     
     def authenticate
@@ -103,7 +104,13 @@ module AppReputation
       
       headers[:cookies].reject! { |k| %w(GALX GAPS LSID RMME).include?(k) }
       
-      RestClientHelper.send_request(:get, @@main_url, headers)
+      RestClientHelper.send_request(:get, @@main_url, headers) do |response|
+        Nokogiri::HTML(response.body).css('script').each do |script|
+          if /"XsrfToken"\s*?:\s*?\"{(.*?)\}"/.match(script.content)
+            @xsrf_token = /[-:\w]{48}/.match($1)[0]
+          end
+        end
+      end
       
       headers.delete('Referer')
       
