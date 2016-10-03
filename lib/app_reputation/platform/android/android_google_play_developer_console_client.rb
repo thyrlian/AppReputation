@@ -12,9 +12,11 @@ module AppReputation
     
     attr_reader :headers
     
-    def initialize(username, password)
+    def initialize(username, password, account = username)
       @username = username
       @password = password
+      @account = account
+      @id = ''
       @headers = {}
       @xsrf_token = ''
     end
@@ -111,6 +113,7 @@ module AppReputation
             accounts = (JSON.parse(data['DeveloperConsoleAccounts'])['1'] || []).inject({}) do |memo, obj|
               memo.merge({obj['4'] => obj['1']})
             end
+            @id = accounts[@account]
             @xsrf_token = JSON.parse(data['XsrfToken'])['1']
           end
         end
