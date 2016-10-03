@@ -106,8 +106,12 @@ module AppReputation
       
       RestClientHelper.send_request(:get, @@main_url, headers) do |response|
         Nokogiri::HTML(response.body).css('script').each do |script|
-          if /"XsrfToken"\s*?:\s*?\"{(.*?)\}"/.match(script.content)
-            @xsrf_token = /[-:\w]{48}/.match($1)[0]
+          if /startupData\s*?=\s*?(\{.*\});/.match(script.content)
+            data = JSON.parse($1)
+            accounts = (JSON.parse(data['DeveloperConsoleAccounts'])['1'] || []).inject({}) do |memo, obj|
+              memo.merge({obj['4'] => obj['1']})
+            end
+            @xsrf_token = JSON.parse(data['XsrfToken'])['1']
           end
         end
       end
