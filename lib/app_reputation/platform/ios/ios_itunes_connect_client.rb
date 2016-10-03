@@ -1,4 +1,3 @@
-require 'json'
 require_relative '../../ratings'
 require_relative '../../installations'
 require_relative '../../helper/rest_client_helper'
