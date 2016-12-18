@@ -37,12 +37,14 @@ module AppReputation
       payload = {}
       new_url = ''
       
+      # https://play.google.com/apps/publish/
       RestClientHelper.send_request(:get, @@main_url, headers) do |response|
         new_url = (Nokogiri::HTML(response.body).css('noscript').first.children.first.attribute('content').value.match(/url='(.*?)'/) || '')[1]
       end
       
       new_headers = headers.merge({'Referer' => @@main_url})
       
+      # https://accounts.google.com/ServiceLogin?...
       RestClientHelper.send_request(:get, new_url, new_headers) do |response|
         payload = compose_payload(response.body) do |pl|
           pl.merge!({
@@ -60,6 +62,7 @@ module AppReputation
         'Origin' => 'https://accounts.google.com'
         }).reject { |k| k == 'Upgrade-Insecure-Requests' }
       
+      # https://accounts.google.com/accountLoginInfoXhr
       RestClientHelper.send_request(:post, @@login_url, new_headers, payload) do |response|
         payload['ProfileInformation'] = JSON.parse(response.body)['encoded_profile_information']
       end
@@ -73,6 +76,7 @@ module AppReputation
         'Origin' => 'https://accounts.google.com'
       })
       
+      # https://accounts.google.com/signin/challenge/sl/password
       RestClientHelper.send_request(:post, @@signin_url, new_headers, payload) do |response|
         if response.code == 302
           new_url = response.headers[:location]
@@ -84,6 +88,7 @@ module AppReputation
       payload.delete('Passwd')
       new_headers = headers.merge({'Cache-Control' => 'max-age=0'})
       
+      # https://accounts.google.com/CheckCookie?...
       RestClientHelper.send_request(:get, new_url, new_headers) do |response|
         match = false
         script = Nokogiri::HTML(response.body).css('script').first.content.split("\n")
@@ -106,6 +111,7 @@ module AppReputation
       
       headers[:cookies].reject! { |k| %w(GALX GAPS LSID RMME).include?(k) }
       
+      # https://play.google.com/apps/publish/
       RestClientHelper.send_request(:get, @@main_url, headers) do |response|
         Nokogiri::HTML(response.body).css('script').each do |script|
           if /startupData\s*?=\s*?(\{.*\});/.match(script.content)
