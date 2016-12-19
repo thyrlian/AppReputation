@@ -99,7 +99,7 @@ module AppReputation
               new_url = $1.escape_uri
               break
             end
-          elsif /window.__DOMAIN_SETTINGS\['(.*?)'\]/.match(line) && /accounts\.google\.com/.match($1)
+          elsif /window.__DOMAIN_SETTINGS\['(.*?)'\]/.match(line) && /accounts\.google\./.match($1)
             match = true
           end
         end
@@ -107,6 +107,7 @@ module AppReputation
       
       new_headers = headers.reject { |k| k == :cookies }
       
+      # https://accounts.google.com/accounts/SetSID?...
       RestClientHelper.send_request(:get, new_url, new_headers)
       
       headers[:cookies].reject! { |k| %w(GALX GAPS LSID RMME).include?(k) }
